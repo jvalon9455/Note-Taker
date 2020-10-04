@@ -32,7 +32,7 @@ app.get("/notes", (req, res) => {
 app.get("/api/notes", (req, res) => {
     // res.json(db);
     // fs.readFile(path.join(__dirname, "/Develop/db/db.json"));
-    fs.readFile("/db/db.json", "utf-8", (err, data) => {
+    fs.readFile("db/db.json", "utf-8", (err, data) => {
         if (err) throw err;
         res.json(JSON.parse(data));
     })
@@ -43,20 +43,35 @@ app.get("/api/notes", (req, res) => {
 
 app.post("/api/notes", (req, res) => {
     console.log(req.body);
-    fs.readFile("/db/db.json", "utf8", (err, data) => {
+    fs.readFile("db/db.json", "utf8", (err, data) => {
         if (err) throw err;
         console.log(data);
         const notesInput = JSON.parse(data);
         req.body.id = uuidv4();
         notesInput.push(req.body);
         console.log(notesInput);
-        fs.writeFile("/db/db.json", JSON.stringify(notesInput), "utf8", (err) => {
+        fs.writeFile("db/db.json", JSON.stringify(notesInput), "utf8", (err) => {
             if (err) throw err;
             res.json(notesInput);
         });
     })
 });
 
+// add delete function to make delete button remove previous saved notes
+
+app.delete("/api/notes/:id", (req, res) => {
+    fs.readFile("db/db.json", "utf8", (err, data) => {
+        if (err) throw err;
+        const list = JSON.parse(data);
+        notesInput = list.filter((data) => {
+            return data.id != req.params.id;
+        });
+        fs.writeFile("db/db.json", JSON.stringify(notesInput), "utf8", (err) => {
+            if (err) throw err;
+            res.json(notesInput);
+        });
+    });
+});
 
 app.listen(PORT, () => {
     console.log(`App is listening on http://localhost:${PORT}`);
